@@ -186,4 +186,4 @@ with st.sidebar.expander("🤖 SLI Chatbot", expanded=False):
             response = model.generate_content(prompt)
             st.sidebar.info(response.text)
         except Exception as e:
-            st.sidebar.error("Error: Check your API Key or Connection.")
+            st.sidebar.error(f"System Error: {e}")
