@@ -5,7 +5,7 @@ import google.generativeai as genai
 # --- GEMINI SETUP ---
 # Siguraduhing "GOOGLE_API_KEY" ang nakasulat sa Streamlit Secrets box
 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-2.5-flash')
 
 # --- SYSTEM SETUP ---
 if 'client_info' not in st.session_state:
