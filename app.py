@@ -3,8 +3,7 @@ from datetime import datetime
 import google.generativeai as genai
 
 # --- GEMINI SETUP ---
-# PAALALA: Ilagay ang iyong API Key sa loob ng quotation marks
-# Kinukuha ang API Key mula sa Streamlit Secrets para mas secure at working
+# Siguraduhing "GOOGLE_API_KEY" ang nakasulat sa Streamlit Secrets box
 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 model = genai.GenerativeModel('gemini-1.5-flash')
 
