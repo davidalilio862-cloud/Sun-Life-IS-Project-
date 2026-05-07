@@ -5,7 +5,7 @@ import google.generativeai as genai
 # --- GEMINI SETUP ---
 # PAALALA: Ilagay ang iyong API Key sa loob ng quotation marks
 genai.configure(api_key="AIzaSyDTEnNd22tcQ48PDphq00-sClo8Zctw-ug")
-model = genai.GenerativeModel('gemini-2.5-flash')
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 # --- SYSTEM SETUP ---
 if 'client_info' not in st.session_state:
