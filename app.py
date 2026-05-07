@@ -4,7 +4,8 @@ import google.generativeai as genai
 
 # --- GEMINI SETUP ---
 # PAALALA: Ilagay ang iyong API Key sa loob ng quotation marks
-genai.configure(api_key="AIzaSyDTEnNd22tcQ48PDphq00-sClo8Zctw-ug")
+# Kinukuha ang API Key mula sa Streamlit Secrets para mas secure at working
+genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 # --- SYSTEM SETUP ---
