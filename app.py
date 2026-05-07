@@ -1,8 +1,13 @@
 import streamlit as st
 from datetime import datetime
+import google.generativeai as genai
+
+# --- GEMINI SETUP ---
+# PAALALA: Ilagay ang iyong API Key sa loob ng quotation marks
+genai.configure(api_key="AIzaSyDTEnNd22tcQ48PDphq00-sClo8Zctw-ug")
+model = genai.GenerativeModel('gemini-2.5-flash')
 
 # --- SYSTEM SETUP ---
-# Kailangan natin ng st.session_state para hindi mawala ang data kapag nag-refresh ang website
 if 'client_info' not in st.session_state:
     st.session_state.client_info = {}
 if 'appointment_schedule' not in st.session_state:
@@ -69,13 +74,10 @@ choice = st.sidebar.selectbox("Main Menu", menu)
 # --- MENU 1: ALL ABOUT SUN LIFE ---
 if choice == "All About Sun Life Insurance":
     st.header("Available Insurance Types")
-    
-    # Dropdown to select insurance
     selected_insurance = st.selectbox("Select an Insurance Type to learn more:", list(benefits.keys()))
     
     if selected_insurance:
         st.write(f"### {selected_insurance}")
-        
         tab1, tab2, tab3 = st.tabs(["View Benefits", "Monthly Premium", "Calculate Total Cost"])
         
         with tab1:
@@ -93,8 +95,6 @@ if choice == "All About Sun Life Insurance":
         with tab3:
             years_to_pay = premium_amounts[selected_insurance]["Years to Pay"]
             st.write(f"Maximum years to pay: **{years_to_pay} years**")
-            
-            # Select specific plan if it's a dictionary
             premium_info = premium_amounts[selected_insurance]["Monthly Premium"]
             if isinstance(premium_info, dict):
                 selected_plan = st.selectbox("Select Plan to calculate:", list(premium_info.keys()))
@@ -139,7 +139,6 @@ elif choice == "Avail Insurance":
 # --- MENU 3: VIEW APPOINTMENTS ---
 elif choice == "View Appointments":
     st.header("Scheduled Appointments")
-    
     if not st.session_state.appointment_schedule:
         st.warning("No appointments scheduled yet.")
     else:
@@ -147,8 +146,44 @@ elif choice == "View Appointments":
             with st.expander(f"Appointment for: {name}"):
                 for key, value in details.items():
                     st.write(f"**{key}:** {value}")
-                
-                # Option to cancel
                 if st.button(f"Cancel Appointment for {name}", key=name):
                     del st.session_state.appointment_schedule[name]
-                    st.rerun() # Refresh the page to reflect deletion
+                    st.rerun()
+
+# --- SLI CHATBOT (SIDEBAR VERSION WITH VISIBLE FAQs) ---
+st.sidebar.divider()
+with st.sidebar.expander("🤖 SLI Chatbot", expanded=False):
+    st.markdown("### 🤖 SLI Assistant")
+    
+    # Visible FAQ list for the user
+    st.write("**Frequently Asked Questions:**")
+    st.caption("• Paano mag-appointment?\n• Paano bumili ng insurance?\n• Paano mag-calculate ng cost?\n• Paano mag-cancel ng appointment?")
+    st.divider()
+    
+    # Internal knowledge manual for Gemini
+    system_knowledge = """
+    Kabatiran tungkol sa Sun Life Insurance IS website:
+    1. Paano mag-appointment? Piliin ang 'Avail Insurance' sa Main Menu (sidebar), punan ang form, at i-click ang 'Submit & Schedule Appointment'.
+    2. Paano makita ang benefits? Pumunta sa 'All About Sun Life Insurance', pumili ng insurance type, at i-click ang 'View Benefits' tab.
+    3. Paano mag-calculate ng cost? Sa 'All About Sun Life Insurance' menu, piliin ang 'Calculate Total Cost' tab, ilagay ang years to pay, at i-click ang 'Calculate'.
+    4. Paano i-view o i-cancel ang appointment? Pumunta sa 'View Appointments' menu sa sidebar. Makikita doon ang listahan at may button na 'Cancel Appointment'.
+    5. Magkano ang premiums? Makikita ang mga presyo sa ilalim ng 'Monthly Premium' tab sa 'All About Sun Life Insurance' menu.
+    """
+
+    user_input = st.sidebar.text_input("Mag-type ng tanong dito...", key="chatbot_input")
+    
+    if user_input:
+        try:
+            prompt = f"""
+            You are SLI, the virtual assistant of the 'Sun Life Insurance IS' website. 
+            Guide users on how to use THIS specific website using this info:
+            {system_knowledge}
+            
+            If the question is about site functions, use the info above. 
+            If it's general insurance info, use your general knowledge.
+            Answer politely in Taglish: {user_input}
+            """
+            response = model.generate_content(prompt)
+            st.sidebar.info(response.text)
+        except Exception as e:
+            st.sidebar.error("Error: Check your API Key or Connection.")
